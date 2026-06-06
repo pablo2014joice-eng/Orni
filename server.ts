@@ -11,17 +11,7 @@ const PORT = 3000;
 
 app.use(express.json());
 
-const apiKey = process.env.GEMINI_API_KEY || "AIzaSyDnUqQMcyy77rmtgERBw_GdN8KLF3qyC1Q";
-
-// Initialize server-side Gemini client
-const ai = new GoogleGenAI({
-  apiKey: apiKey,
-  httpOptions: {
-    headers: {
-      'User-Agent': 'aistudio-build',
-    }
-  }
-});
+const fallbackKey = "AIzaSyDnUqQMcyy77rmtgERBw_GdN8KLF3qyC1Q";
 
 // Health check
 app.get("/api/health", (req, res) => {
@@ -31,6 +21,18 @@ app.get("/api/health", (req, res) => {
 // Conversation Endpoint
 app.post("/api/chat", async (req, res) => {
   try {
+    const customHeaderKey = req.headers['x-api-key'] || req.headers['X-Api-Key'];
+    const activeKey = (typeof customHeaderKey === 'string' ? customHeaderKey : null) || process.env.GEMINI_API_KEY || fallbackKey;
+
+    const ai = new GoogleGenAI({
+      apiKey: activeKey,
+      httpOptions: {
+        headers: {
+          'User-Agent': 'aistudio-build',
+        }
+      }
+    });
+
     const { message, history } = req.body;
     if (!message) {
       return res.status(400).json({ error: "A mensagem não pode estar vazia" });

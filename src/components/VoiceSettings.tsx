@@ -5,9 +5,11 @@ import { VoiceConfig } from '../types';
 interface VoiceSettingsProps {
   config: VoiceConfig;
   onChange: (newConfig: VoiceConfig) => void;
+  customApiKey: string;
+  onCustomApiKeyChange: (key: string) => void;
 }
 
-export default function VoiceSettings({ config, onChange }: VoiceSettingsProps) {
+export default function VoiceSettings({ config, onChange, customApiKey, onCustomApiKeyChange }: VoiceSettingsProps) {
   const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
   const [isOpen, setIsOpen] = useState(false);
 
@@ -164,6 +166,40 @@ export default function VoiceSettings({ config, onChange }: VoiceSettingsProps) 
                 className="w-full accent-emerald-500 h-1 bg-slate-800 rounded-lg appearance-none cursor-pointer"
               />
             </div>
+          </div>
+
+          {/* Custom API Key Config */}
+          <div className="space-y-1.5 pt-3 border-t border-slate-800/60">
+            <div className="flex justify-between items-center">
+              <span className="text-slate-400 block font-medium">Chave API do Gemini</span>
+              {!customApiKey ? (
+                <span className="text-[10px] text-sky-400 bg-sky-950/40 px-1.5 py-0.5 rounded border border-sky-900/40 font-mono">Padrão / Host</span>
+              ) : (
+                <span className="text-[10px] text-emerald-400 bg-emerald-950/40 px-1.5 py-0.5 rounded border border-emerald-900/40 font-bold font-mono">Personalizada</span>
+              )}
+            </div>
+            <div className="relative">
+              <input
+                type="password"
+                value={customApiKey}
+                onChange={(e) => onCustomApiKeyChange(e.target.value)}
+                placeholder="Cole a sua chave (começa com AIzaSy)"
+                className="w-full bg-slate-950 border border-slate-800 text-slate-200 rounded-lg p-2 pr-12 focus:outline-none focus:border-emerald-500 font-mono text-[11px]"
+              />
+              {customApiKey && (
+                <button
+                  type="button"
+                  onClick={() => onCustomApiKeyChange('')}
+                  className="absolute right-2 top-2 text-rose-400 hover:text-rose-300 text-[10px] bg-rose-950/30 hover:bg-rose-900/40 border border-rose-800/40 rounded px-1.5 py-0.5 cursor-pointer font-medium"
+                  title="Restaurar padrão"
+                >
+                  Limpar
+                </button>
+              )}
+            </div>
+            <p className="text-[10px] text-slate-500 leading-normal">
+              Insira de graça uma chave obtida no <a href="https://aistudio.google.com" target="_blank" rel="noopener noreferrer" className="text-emerald-400 hover:underline inline-flex items-center gap-0.5">Google AI Studio</a> se houver erros de API no servidor.
+            </p>
           </div>
         </div>
       )}

@@ -50,6 +50,15 @@ export default function App() {
     muted: false,
   });
 
+  const [customApiKey, setCustomApiKey] = useState<string>(() => {
+    return localStorage.getItem('orni_custom_api_key') || '';
+  });
+
+  const handleCustomApiKeyChange = (key: string) => {
+    setCustomApiKey(key);
+    localStorage.setItem('orni_custom_api_key', key);
+  };
+
   // Check microphone and SpeechRecognition support on mount
   useEffect(() => {
     if (SpeechRecognition) {
@@ -207,9 +216,14 @@ export default function App() {
 
     try {
       // POST payload with current prompt and recent historical sequence
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      if (customApiKey) {
+        headers['x-api-key'] = customApiKey;
+      }
+
       const response = await fetch('/api/chat', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify({
           message: text,
           history: updatedMessages.slice(-8), // send last 8 messages for context
@@ -392,6 +406,13 @@ export default function App() {
                 isMicSupported={isMicSupported}
                 onSendMessage={handleSendMessage}
                 onToggleListen={toggleVoiceListen}
+              />
+
+              <VoiceSettings
+                config={voiceConfig}
+                onChange={setVoiceConfig}
+                customApiKey={customApiKey}
+                onCustomApiKeyChange={handleCustomApiKeyChange}
               />
             </motion.div>
           )}

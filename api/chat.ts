@@ -1,15 +1,6 @@
 import { GoogleGenAI } from "@google/genai";
 
-const apiKey = process.env.GEMINI_API_KEY || "AIzaSyDnUqQMcyy77rmtgERBw_GdN8KLF3qyC1Q";
-
-const ai = new GoogleGenAI({
-  apiKey: apiKey,
-  httpOptions: {
-    headers: {
-      'User-Agent': 'aistudio-build',
-    }
-  }
-});
+const fallbackKey = "AIzaSyDnUqQMcyy77rmtgERBw_GdN8KLF3qyC1Q";
 
 export default async function handler(req: any, res: any) {
   if (req.method !== 'POST') {
@@ -17,6 +8,18 @@ export default async function handler(req: any, res: any) {
   }
 
   try {
+    const customHeaderKey = req.headers['x-api-key'] || req.headers['X-Api-Key'];
+    const activeKey = customHeaderKey || process.env.GEMINI_API_KEY || fallbackKey;
+
+    const ai = new GoogleGenAI({
+      apiKey: activeKey,
+      httpOptions: {
+        headers: {
+          'User-Agent': 'aistudio-build',
+        }
+      }
+    });
+
     const { message, history } = req.body;
     if (!message) {
       return res.status(400).json({ error: "A mensagem não pode estar vazia" });
