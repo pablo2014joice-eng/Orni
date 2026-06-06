@@ -1,15 +1,19 @@
 import { GoogleGenAI } from "@google/genai";
 
-const fallbackKey = "AIzaSyDnUqQMcyy77rmtgERBw_GdN8KLF3qyC1Q";
-
 export default async function handler(req: any, res: any) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method Not Allowed' });
   }
 
   try {
-    const customHeaderKey = req.headers['x-api-key'] || req.headers['X-Api-Key'];
-    const activeKey = customHeaderKey || process.env.GEMINI_API_KEY || fallbackKey;
+    const customHeaderKey = req.headers['x-api-key'] || req.headers['X-Api-Key'] || req.headers['x-api-key'] || req.headers['x-api-key'];
+    const activeKey = customHeaderKey || process.env.GEMINI_API_KEY;
+
+    if (!activeKey) {
+      return res.status(401).json({
+        error: "GEMINI_API_KEY não configurada. Por favor, cole a sua chave API do Google AI Studio nas configurações (clique em 'Customizar' no menu superior direito do ecrã e configure em 'Chave API do Gemini')."
+      });
+    }
 
     const ai = new GoogleGenAI({
       apiKey: activeKey,

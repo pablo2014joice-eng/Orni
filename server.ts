@@ -11,8 +11,6 @@ const PORT = 3000;
 
 app.use(express.json());
 
-const fallbackKey = "AIzaSyDnUqQMcyy77rmtgERBw_GdN8KLF3qyC1Q";
-
 // Health check
 app.get("/api/health", (req, res) => {
   res.json({ status: "ok", time: new Date() });
@@ -22,7 +20,13 @@ app.get("/api/health", (req, res) => {
 app.post("/api/chat", async (req, res) => {
   try {
     const customHeaderKey = req.headers['x-api-key'] || req.headers['X-Api-Key'];
-    const activeKey = (typeof customHeaderKey === 'string' ? customHeaderKey : null) || process.env.GEMINI_API_KEY || fallbackKey;
+    const activeKey = (typeof customHeaderKey === 'string' ? customHeaderKey : null) || process.env.GEMINI_API_KEY;
+
+    if (!activeKey) {
+      return res.status(401).json({
+        error: "GEMINI_API_KEY não configurada. Por favor, cole a sua chave API do Google AI Studio nas configurações (clique em 'Customizar' no menu superior direito do ecrã e configure em 'Chave API do Gemini')."
+      });
+    }
 
     const ai = new GoogleGenAI({
       apiKey: activeKey,
