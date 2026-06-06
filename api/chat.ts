@@ -1,7 +1,9 @@
 import { GoogleGenAI } from "@google/genai";
 
+const apiKey = process.env.GEMINI_API_KEY || "AIzaSyDnUqQMcyy77rmtgERBw_GdN8KLF3qyC1Q";
+
 const ai = new GoogleGenAI({
-  apiKey: process.env.GEMINI_API_KEY,
+  apiKey: apiKey,
   httpOptions: {
     headers: {
       'User-Agent': 'aistudio-build',
@@ -15,12 +17,6 @@ export default async function handler(req: any, res: any) {
   }
 
   try {
-    if (!process.env.GEMINI_API_KEY) {
-      return res.status(500).json({ 
-        error: "A chave GEMINI_API_KEY não foi encontrada configurada no servidor. Se estiver a alojar a app no Vercel, por favor aceda às 'Environment Variables' do seu projeto no painel da Vercel e adicione GEMINI_API_KEY com o valor do Google AI Studio." 
-      });
-    }
-
     const { message, history } = req.body;
     if (!message) {
       return res.status(400).json({ error: "A mensagem não pode estar vazia" });
