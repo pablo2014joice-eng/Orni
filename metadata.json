@@ -1,0 +1,10 @@
+{
+  "name": "Evolução da Orni",
+  "description": "Interage com a Orni, uma esfera evolutiva de inteligência artificial com voz e conversão em tempo real.",
+  "requestFramePermissions": [
+    "microphone"
+  ],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
