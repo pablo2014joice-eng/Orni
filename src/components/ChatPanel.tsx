@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState } from 'react';
-import { Mic, MicOff, Sparkles, User, AudioLines, Send } from 'lucide-react';
+import { Mic, MicOff, Sparkles, User, AudioLines, Send, ExternalLink, Key } from 'lucide-react';
 import { Message } from '../types';
 
 interface ChatPanelProps {
@@ -72,13 +72,52 @@ export default function ChatPanel({
 
               {/* Message Caption Bubble */}
               <div
-                className={`max-w-[80%] px-3 py-2 rounded-2xl text-[12.5px] leading-relaxed relative ${
+                className={`max-w-[85%] px-3 py-2 rounded-2xl text-[12.5px] leading-relaxed relative ${
                   msg.role === 'user'
                     ? 'bg-sky-600/10 border border-sky-500/20 text-sky-200 rounded-tr-none'
-                    : 'bg-slate-950/60 border border-emerald-500/10 text-slate-200 rounded-tl-none'
+                    : 'bg-slate-950/60 border border-emerald-500/10 text-slate-200 rounded-tl-none w-full'
                 }`}
               >
-                <p className="whitespace-pre-wrap">{msg.text}</p>
+                {msg.text.includes('GEMINI_API_KEY') ? (
+                  <div className="space-y-3 p-1">
+                    <div className="flex items-center gap-1.5 text-rose-450 font-bold text-xs border-b border-rose-500/10 pb-2">
+                      <Key className="w-4 h-4 shrink-0 text-rose-400" />
+                      <span>Configurar Chave de API na Vercel</span>
+                    </div>
+                    <p className="text-[11.5px] text-slate-300 leading-normal">
+                      Para que a Orni fale consigo no domínio <code className="text-emerald-400 bg-emerald-950/30 px-1 py-0.5 rounded">orniapp.vercel.app</code>, precisa de adicionar a sua chave GEMINI_API_KEY:
+                    </p>
+                    <div className="space-y-2 text-[11px]">
+                      <div className="flex gap-2 items-start bg-slate-900/40 p-2 rounded-xl border border-slate-800/80">
+                        <div className="w-4 h-4 rounded-full bg-slate-800 flex items-center justify-center shrink-0 font-bold text-slate-300 text-[9px] mt-0.5">1</div>
+                        <div className="flex-1 text-slate-300 text-[10.5px]">
+                          Vá ao painel da <a href="https://vercel.com" target="_blank" rel="noopener noreferrer" className="text-emerald-400 hover:underline inline-flex items-center gap-0.5 font-semibold">Vercel <ExternalLink className="w-2.5 h-2.5 inline" /></a>, clique no projeto <strong>orniapp</strong> e vá à aba <strong>Settings</strong> (Configurações).
+                        </div>
+                      </div>
+                      <div className="flex gap-2 items-start bg-slate-900/40 p-2 rounded-xl border border-slate-800/80">
+                        <div className="w-4 h-4 rounded-full bg-slate-800 flex items-center justify-center shrink-0 font-bold text-slate-300 text-[9px] mt-0.5">2</div>
+                        <div className="flex-1 text-slate-300 space-y-1 text-[10.5px]">
+                          <div>Clique em <strong>Environment Variables</strong> e crie uma nova variável:</div>
+                          <div className="bg-slate-950/80 px-2 py-1 rounded border border-slate-800 font-mono text-[9.5px] text-rose-400 select-all font-semibold inline-block">
+                            GEMINI_API_KEY
+                          </div>
+                          <div>No campo <strong>Value</strong>, cole a chave obtida de graça no Google AI Studio (começa por <code className="text-slate-400 select-all font-mono">AIzaSy...</code>).</div>
+                        </div>
+                      </div>
+                      <div className="flex gap-2 items-start bg-slate-900/40 p-2 rounded-xl border border-slate-800/80">
+                        <div className="w-4 h-4 rounded-full bg-slate-800 flex items-center justify-center shrink-0 font-bold text-slate-300 text-[9px] mt-0.5">3</div>
+                        <div className="flex-1 text-slate-300 text-[10.5px]">
+                          Vá à aba <strong>Deployments</strong> (Implantações), clique nos <strong className="text-slate-100 font-semibold text-xs">...</strong> do deploy recente e clique em <strong>Redeploy</strong>.
+                        </div>
+                      </div>
+                    </div>
+                    <div className="pt-2 text-[10px] text-emerald-400 font-medium text-center">
+                      Recarregue a página após isso e fale livremente! ✨
+                    </div>
+                  </div>
+                ) : (
+                  <p className="whitespace-pre-wrap">{msg.text}</p>
+                )}
               </div>
             </div>
           ))
