@@ -1,17 +1,5 @@
-import express from "express";
-import path from "path";
-import { createServer as createViteServer } from "vite";
 import { GoogleGenAI } from "@google/genai";
-import dotenv from "dotenv";
 
-dotenv.config();
-
-const app = express();
-const PORT = 3000;
-
-app.use(express.json());
-
-// Initialize server-side Gemini client
 const ai = new GoogleGenAI({
   apiKey: process.env.GEMINI_API_KEY,
   httpOptions: {
@@ -21,13 +9,11 @@ const ai = new GoogleGenAI({
   }
 });
 
-// Health check
-app.get("/api/health", (req, res) => {
-  res.json({ status: "ok", time: new Date() });
-});
+export default async function handler(req: any, res: any) {
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method Not Allowed' });
+  }
 
-// Conversation Endpoint
-app.post("/api/chat", async (req, res) => {
   try {
     if (!process.env.GEMINI_API_KEY) {
       return res.status(500).json({ 
@@ -58,7 +44,7 @@ app.post("/api/chat", async (req, res) => {
     const formattedTime = currentDate.toLocaleTimeString("pt-BR", {
       hour: "2-digit",
       minute: "2-digit",
-      timeZone: "America/Sao_Paulo", // Standard reliable timezone or generic local time representation
+      timeZone: "America/Sao_Paulo",
     });
 
     const response = await ai.models.generateContent({
@@ -80,33 +66,9 @@ Regras absolutas:
     });
 
     const replyText = response.text || "Olá! Não consegui processar a resposta.";
-    res.json({ text: replyText });
+    return res.status(200).json({ text: replyText });
   } catch (error: any) {
-    console.error("Erro no proxy do Gemini:", error);
-    res.status(500).json({ error: error.message || "Consulte as configurações da chave API." });
+    console.error("Erro no proxy do Gemini (Vercel):", error);
+    return res.status(500).json({ error: error.message || "Consulte as configurações da chave API." });
   }
-});
-
-// Configure Vite middleware or static serving
-async function setupVite() {
-  if (process.env.NODE_ENV !== "production") {
-    const vite = await createViteServer({
-      server: { middlewareMode: true },
-      appType: "spa",
-    });
-    app.use(vite.middlewares);
-  } else {
-    const distPath = path.join(process.cwd(), 'dist');
-    app.use(express.static(distPath));
-    // Serve index.html for SPA fallback
-    app.get('*', (req, res) => {
-      res.sendFile(path.join(distPath, 'index.html'));
-    });
-  }
-
-  app.listen(PORT, "0.0.0.0", () => {
-    console.log(`Server running on port ${PORT}`);
-  });
 }
-
-setupVite();
